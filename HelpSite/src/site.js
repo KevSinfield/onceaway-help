@@ -335,32 +335,43 @@
   /* --------------------------------------------------------- on this page */
 
   const tocLinks = [...document.querySelectorAll('.toc__item a')]
-  if (tocLinks.length && 'IntersectionObserver' in window) {
+  if (tocLinks.length) {
     const byId = new Map(tocLinks.map((link) => [link.getAttribute('href').slice(1), link]))
-    const headings = [...byId.keys()]
-      .map((id) => document.getElementById(id))
-      .filter(Boolean)
+    const headings = [...byId.keys()].map((id) => document.getElementById(id)).filter(Boolean)
 
-    let visible = new Set()
-    const highlight = () => {
-      const first = headings.find((h) => visible.has(h.id))
-      for (const link of tocLinks) link.classList.remove('is-active')
-      if (first) {
-        const link = byId.get(first.id)
-        if (link) link.classList.add('is-active')
+    /**
+     * The heading you are currently reading under is the last one to have
+     * passed the top of the viewport — not whichever one happens to be inside
+     * a band. A band leaves the rail blank whenever the gap between two
+     * headings is taller than the band, which is most of the time at the foot
+     * of a page.
+     */
+    const update = () => {
+      if (!headings.length) return
+      const line = 140
+      let current = headings[0]
+      for (const heading of headings) {
+        if (heading.getBoundingClientRect().top <= line) current = heading
+        else break
+      }
+      // The last heading is often too close to the foot of the page to ever
+      // reach the line, so at the bottom of the document it takes the highlight.
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4
+      if (atBottom) current = headings[headings.length - 1]
+
+      for (const link of tocLinks) {
+        link.classList.remove('is-active')
+        link.removeAttribute('aria-current')
+      }
+      const link = byId.get(current.id)
+      if (link) {
+        link.classList.add('is-active')
+        link.setAttribute('aria-current', 'true')
       }
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.add(entry.target.id)
-          else visible.delete(entry.target.id)
-        }
-        highlight()
-      },
-      { rootMargin: '-80px 0px -70% 0px', threshold: 0 },
-    )
-    for (const heading of headings) observer.observe(heading)
+    window.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update)
+    update()
   }
 })()
