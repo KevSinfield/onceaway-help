@@ -190,6 +190,30 @@ describe('screenshots', () => {
   })
 
   /**
+   * The guides are screenshot-led. Most of the slots now hold real captures,
+   * and a change that quietly drops them back to empty panels should fail
+   * here rather than on the published site.
+   */
+  test('each guide is actually illustrated', async () => {
+    for (const [name, html] of [['anthropic', (await guides())[0]], ['openai', (await guides())[1]]]) {
+      const shots = (html.match(/<img\b/g) ?? []).length
+      assert.ok(shots >= 4, `the ${name} guide shows only ${shots} captured screenshots`)
+    }
+  })
+
+  /**
+   * Each guide ends on Onceaway's own AI pane, showing the provider that guide
+   * is about. Crossing the two over would be a small, very confusing error.
+   */
+  test('each guide shows its own provider in the Onceaway screenshot', async () => {
+    const [anthropicHtml, openaiHtml] = await guides()
+    assert.match(anthropicHtml, /images\/onceaway\/settings-ai-anthropic\.png/)
+    assert.doesNotMatch(anthropicHtml, /settings-ai-openai\.png/)
+    assert.match(openaiHtml, /images\/onceaway\/settings-ai-openai\.png/)
+    assert.doesNotMatch(openaiHtml, /settings-ai-anthropic\.png/)
+  })
+
+  /**
    * A real image, once one exists, must resolve and must describe itself.
    */
   test('any published image resolves and has alt text', async () => {
@@ -215,6 +239,29 @@ describe('screenshots', () => {
         const relative = src.replace(url('images/'), '')
         assert.ok(files.has(relative), `${route} points at a missing image: ${src}`)
       }
+    }
+  })
+})
+
+/**
+ * What the Console actually calls things, verified against it on 8 September
+ * 2026 while the screenshots were taken. A guide that names a button which is
+ * not there is worse than a guide with no picture.
+ */
+describe('the words match the screens', () => {
+  test('the Anthropic guide uses the Console\'s own labels', async () => {
+    const [html] = await guides()
+    assert.match(html, phrase('Continue with an API key'), 'the identity federation step is missing')
+    assert.match(html, phrase('Buy credits'), 'the billing button is named wrongly')
+    assert.match(html, phrase('choose a workspace here'), 'the scope advice is missing')
+    assert.match(html, /<strong>Scope<\/strong>/, 'the field is still called Workspace')
+    assert.doesNotMatch(html, phrase('Add funds'), 'the guide still names a button that is gone')
+  })
+
+  test('the OpenAI guide describes every control in its dialog', async () => {
+    const [, html] = await guides()
+    for (const label of ['Owned by', 'Name', 'Project', 'Permissions']) {
+      assert.match(html, phrase(label), `the OpenAI guide does not mention ${label}`)
     }
   })
 })

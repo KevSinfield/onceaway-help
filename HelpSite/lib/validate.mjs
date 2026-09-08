@@ -1,5 +1,5 @@
 import { config, url } from '../config.mjs'
-import { rewriteLink } from './render.mjs'
+import { rewriteAsset, rewriteLink } from './render.mjs'
 
 /**
  * Build-time checks. The build fails rather than publishing a site with a
@@ -63,6 +63,25 @@ export function validate(content, rendered) {
     }
   }
 
+  /* Every image resolves to a file that will actually be published, and
+     says something useful to a reader who cannot see it. */
+  const published = content.images ?? null
+  for (const article of articles) {
+    for (const { alt, src } of images(article)) {
+      if (!alt.trim()) {
+        problems.push(`${article.sourcePath}: image "${src}" has no alt text`)
+      }
+      if (/^(https?:|data:)/i.test(src)) {
+        problems.push(`${article.sourcePath}: image "${src}" is loaded from off site`)
+        continue
+      }
+      const rewritten = rewriteAsset(src, article)
+      if (published && !published.has(rewritten)) {
+        problems.push(`${article.sourcePath}: image "${src}" has no file (expected ${rewritten})`)
+      }
+    }
+  }
+
   /* Anchor links point at a heading that exists in the target article. */
   const headingsBySlug = new Map(
     [...rendered.entries()].map(([slug, output]) => [slug, new Set(output.headings.map((h) => h.id))]),
@@ -117,15 +136,31 @@ export function validate(content, rendered) {
   return problems
 }
 
-/** Relative Markdown links in an article, excluding external and pure anchors. */
+/**
+ * Relative Markdown links in an article, excluding external links, pure
+ * anchors, and images. An image points at a file, not a route, so it is
+ * checked separately by `images` below.
+ */
 function internalLinks(article) {
   const found = []
-  const pattern = /\[[^\]]*\]\(([^)\s]+)\)/g
+  const pattern = /(!?)\[[^\]]*\]\(([^)\s]+)\)/g
   let match
   while ((match = pattern.exec(article.markdown))) {
-    const href = match[1]
+    if (match[1]) continue
+    const href = match[2]
     if (/^(https?:|mailto:|#)/i.test(href)) continue
     found.push(href)
+  }
+  return found
+}
+
+/** Every Markdown image in an article, as `{ alt, src }`. */
+function images(article) {
+  const found = []
+  const pattern = /!\[([^\]]*)\]\(([^)\s]+)\)/g
+  let match
+  while ((match = pattern.exec(article.markdown))) {
+    found.push({ alt: match[1], src: match[2] })
   }
   return found
 }

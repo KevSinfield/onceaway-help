@@ -35,6 +35,10 @@ export async function build({ quiet = false } = {}) {
     rendered.set(article.slug, { ...output, plain })
   }
 
+  // What the image tree actually holds, so validation can fail on an article
+  // that points at a screenshot nobody has taken.
+  content.images = await collectImages(path.join(helpRoot, 'images'))
+
   const problems = validate(content, rendered)
   if (problems.length) {
     console.error(`\nBuild validation failed with ${problems.length} problem(s):\n`)
@@ -116,6 +120,29 @@ export async function build({ quiet = false } = {}) {
 }
 
 /** The first substantial sentence or two, for the page description. */
+/**
+ * The site routes of every publishable image under `Docs/Help/images`.
+ */
+async function collectImages(from, prefix = 'images') {
+  const allowed = new Set(['.png', '.webp', '.jpg', '.jpeg', '.svg', '.gif'])
+  const found = new Set()
+  let entries
+  try {
+    entries = await readdir(from, { withFileTypes: true })
+  } catch {
+    return found
+  }
+  for (const entry of entries) {
+    const route = `${prefix}/${entry.name}`
+    if (entry.isDirectory()) {
+      for (const nested of await collectImages(path.join(from, entry.name), route)) found.add(nested)
+    } else if (allowed.has(path.extname(entry.name).toLowerCase())) {
+      found.add(url(route))
+    }
+  }
+  return found
+}
+
 /**
  * Copies the image tree verbatim. Only real image files travel: a stray
  * document or note left in the folder stays out of the published site.

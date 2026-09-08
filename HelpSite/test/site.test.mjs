@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from '../build.mjs'
 import { config, url } from '../config.mjs'
 import { rewriteLink, toPlainText, slugifyHeading } from '../lib/render.mjs'
+import { validate } from '../lib/validate.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const dist = path.resolve(here, '../dist')
@@ -415,5 +416,59 @@ describe('plain text extraction', () => {
   test('strips the syntax a snippet should never show', () => {
     const plain = toPlainText('## Heading\n\nSome **bold** and [a link](x.md) and `code`.\n\n- item\n')
     assert.equal(plain, 'Heading Some bold and a link and code. item')
+  })
+})
+
+/**
+ * An image points at a file, not at a route. The build must tell the two
+ * apart: an illustration whose file is missing has to fail the build, and an
+ * illustration that exists must not be mistaken for a broken article link.
+ */
+describe('image validation', () => {
+  const article = (markdown) => ({
+    slug: 'ai/example',
+    dir: 'ai',
+    sourcePath: 'ai/example.md',
+    section: 'AI',
+    title: 'Example',
+    markdown,
+  })
+
+  const check = (markdown, images) => {
+    const one = article(markdown)
+    const content = {
+      articles: [one],
+      sections: [{ title: 'AI', articles: [one] }],
+      bySlug: new Map([[one.slug, one]]),
+      images: new Set(images),
+    }
+    const rendered = new Map([[one.slug, { headings: [], plain: 'Example body', html: '<p>x</p>' }]])
+    // The fixture is one article, so the site's own configuration naturally
+    // has nothing to point at. Only what this article's image causes matters.
+    return validate(content, rendered).filter((problem) => problem.startsWith(one.sourcePath))
+  }
+
+  const present = url('images/ai/anthropic/api-keys.png')
+
+  test('an image with a file passes, and is not read as a route', () => {
+    const problems = check('![The API keys page](../images/ai/anthropic/api-keys.png)', [present])
+    assert.deepEqual(problems, [])
+  })
+
+  test('an image with no file fails the build', () => {
+    const problems = check('![Nothing yet](../images/ai/anthropic/missing.png)', [present])
+    assert.equal(problems.length, 1)
+    assert.match(problems[0], /has no file/)
+    assert.doesNotMatch(problems[0], /does not resolve/, 'an image was checked as if it were a route')
+  })
+
+  test('an image with no alt text fails the build', () => {
+    const problems = check('![](../images/ai/anthropic/api-keys.png)', [present])
+    assert.ok(problems.some((p) => /no alt text/.test(p)), problems.join('; '))
+  })
+
+  test('an image loaded from another site fails the build', () => {
+    const problems = check('![Elsewhere](https://example.com/shot.png)', [present])
+    assert.ok(problems.some((p) => /off site/.test(p)), problems.join('; '))
   })
 })

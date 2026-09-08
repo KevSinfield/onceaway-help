@@ -42,28 +42,36 @@ billing is not.
 Go to **Settings → API keys**, or straight to
 [platform.claude.com/settings/keys](https://platform.claude.com/settings/keys).
 
-> **Screenshot:** The API keys page, with the Create key button.
+![The Claude Console API keys page. The Create key button sits at the top
+right, above a row of filters.](../images/ai/anthropic/api-keys.png)
 
 ## Step 4 — Create the key
 
-Press **Create key**, then fill in the short form.
+Press **Create key**.
 
-> **Screenshot:** The Create key dialog, showing the name, expiration, linked account and workspace fields.
+Anthropic may first offer identity federation instead — short-lived tokens
+issued by a cloud provider. That is for servers, not for a Mac app. Choose
+**Continue with an API key**.
+
+Then fill in the short form.
+
+![The Create API key dialog. It has a Name field, an Expires menu set to Never,
+a Linked account menu, and a Scope menu set to a workspace.](../images/ai/anthropic/create-key.png)
 
 **Name** — call it `Onceaway`, so you know later what it is for.
 
-**Expiration** — you can choose 3 hours, 1 day, 7 days, 30 days, a custom
-length, or **Never**. A key that expires stops working without warning, so
-unless you have a reason to rotate it, **Never** is the simplest choice for a
-key you keep on your own Mac.
+**Expires** — you can choose 3 hours, 1 day, 7 days, 30 days, a custom length,
+or **Never**. A key that expires stops working without warning, so unless you
+have a reason to rotate it, **Never** is the simplest choice for a key you keep
+on your own Mac.
 
 **Linked account** — set this to yourself. That makes it a personal key, which
 is what you want for your own machine.
 
-**Workspace** — **choose a workspace here.** This one matters: a key that is
-not tied to a workspace expects every request to name one, and Onceaway does
-not. If your key does not work later and everything else looks right, this is
-the first thing to check.
+**Scope** — **choose a workspace here**, not **Organization**. This one
+matters: a key that is not tied to a workspace expects every request to name
+one, and Onceaway does not. If your key does not work later and everything else
+looks right, this is the first thing to check.
 
 ## Step 5 — Copy the key
 
@@ -78,12 +86,14 @@ If you lose it, nothing is broken — delete that key and create another.
 
 API usage is paid for separately from any Claude subscription. Anthropic bills
 API use against your Console organisation, and you top it up in advance:
-**Settings → Billing**, then **Add funds**.
+**Settings → Billing**, then **Buy credits**.
 
 You are charged for successful requests. A small amount goes a long way with
 Onceaway, which sends a short request only when you press a button.
 
-> **Screenshot:** The Billing page, with the Add funds button. Balances and card details redacted.
+![The Console Billing page. A Credit balance card shows the remaining
+balance, painted out here, with a Buy credits button beside
+it.](../images/ai/anthropic/billing.png)
 
 ## Step 7 — Put the key into Onceaway
 
@@ -95,7 +105,9 @@ Onceaway, which sends a short request only when you press a button.
 
 Leave the **Model** setting alone unless you have a reason to change it.
 
-> **Screenshot:** Onceaway's Settings → AI pane, with Anthropic selected and the key field empty.
+![Onceaway's Settings window on the AI tab. The Provider control is set to
+Anthropic, and the Anthropic API key field is
+empty.](../images/onceaway/settings-ai-anthropic.png)
 
 ## Treat the key like a password
 

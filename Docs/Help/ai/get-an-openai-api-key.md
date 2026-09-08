@@ -27,7 +27,9 @@ Go to [platform.openai.com](https://platform.openai.com).
 
 This is OpenAI's developer platform. It is a different place from ChatGPT.
 
-> **Screenshot:** The OpenAI Platform sign-in page at platform.openai.com.
+![The OpenAI Platform sign-in page. It asks for an email address, with
+buttons to continue with Google, Apple, Microsoft or a phone
+number.](../images/ai/openai/platform-signin.png)
 
 ## Step 2 — Sign in, or create an account
 
@@ -38,13 +40,19 @@ is fine — the accounts are linked, the billing is not.
 
 Go to [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
 
-> **Screenshot:** The API keys page, with the Create new secret key button.
+![The OpenAI Platform API keys page. The Create new secret key button sits
+at the top right, above a row of filters.](../images/ai/openai/api-keys.png)
 
 ## Step 4 — Create the key
 
 Press **+ Create new secret key**.
 
-> **Screenshot:** The Create new secret key dialog, showing the name, project and permissions fields.
+![The Create new secret key dialog. It has an Owned by control set to You, a
+Name field, a Project menu, and a Permissions control set to
+All.](../images/ai/openai/create-key.png)
+
+**Owned by** — leave this at **You**. A service account key belongs to an
+automation, not to a person.
 
 **Name** — call it `Onceaway`.
 
@@ -72,7 +80,9 @@ will work you need a payment method or prepaid credit on the API account:
 You are charged for what you use. A small amount goes a long way with
 Onceaway, which sends a short request only when you press a button.
 
-> **Screenshot:** The Billing page, with the option to add a payment method or credit. Balances and card details redacted.
+![The OpenAI Platform Billing page. It shows the API credit balance, painted
+out here, with Buy credits and payment-method
+options.](../images/ai/openai/billing.png)
 
 ## Step 7 — Put the key into Onceaway
 
@@ -84,7 +94,9 @@ Onceaway, which sends a short request only when you press a button.
 
 Leave the **Model** setting alone unless you have a reason to change it.
 
-> **Screenshot:** Onceaway's Settings → AI pane, with OpenAI selected and the key field empty.
+![Onceaway's Settings window on the AI tab. The Provider control is set to
+OpenAI, and the OpenAI API key field is
+empty.](../images/onceaway/settings-ai-openai.png)
 
 ## Treat the key like a password
 
