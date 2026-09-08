@@ -20,7 +20,11 @@ Quitting also stops it.
 
 ## The ring is not there at all
 
-Work through these:
+**You are not stuck.** Open Onceaway and go to **Home**: it shows the current
+state and starts or pauses observation, exactly as the menu does. Nothing
+depends on finding the ring.
+
+Then, if you would like it back, work through these:
 
 - **Is Onceaway running?** Check your Applications folder and open it. Closing
   the main window does not quit the app, but quitting it does remove the ring.

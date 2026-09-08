@@ -9,6 +9,15 @@ order: 4
 Observation is **off** when you first install Onceaway. You turn it on
 yourself, and you can turn it off at any moment.
 
+## In the app
+
+**Home** shows the state at the top of the page — *Observing*, *Paused* or
+*Privacy protected* — with a button beside it that starts or pauses. It is
+there whether or not Onceaway has noticed anything yet.
+
+This is the reliable one. macOS hides menu-bar icons when the bar is full, and
+a switch you cannot see is not much of a switch.
+
 ## The ring in your menu bar
 
 Onceaway puts a small ring near your clock. It tells you the state at a glance:
@@ -26,11 +35,13 @@ The foot of the sidebar in the main window shows the same status.
 
 ## Turning it on
 
-Click the ring, then **Start Observation**. That is all.
+Press **Start** on Home, or click the ring and choose **Start Observation**.
+Either one does the same thing, and both show the change straight away.
 
 ## Turning it off
 
-Click the ring, then **Pause Observation**. Observation stops immediately.
+Press **Pause** on Home, or click the ring and choose **Pause Observation**.
+Observation stops immediately.
 Anything already recorded stays until your retention setting removes it, and
 you can clear it yourself at any time.
 

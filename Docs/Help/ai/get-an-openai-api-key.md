@@ -92,7 +92,8 @@ options.](../images/ai/openai/billing.png)
 4. Paste the key into the **OpenAI API key** field.
 5. Press **Save to Keychain**.
 
-Leave the **Model** setting alone unless you have a reason to change it.
+Leave the **Model ID (advanced)** setting alone unless you have a reason to
+change it. Onceaway shows which model is in use above it.
 
 ![Onceaway's Settings window on the AI tab. The Provider control is set to
 OpenAI, and the OpenAI API key field is

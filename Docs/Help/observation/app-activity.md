@@ -31,8 +31,22 @@ Apps in **Always Protected** are treated as protected automatically.
 
 ## Can I turn app activity off on its own?
 
-Not separately — it is what observation *is*. To stop it, pause observation
-from the menu bar. To leave particular apps alone, use Never Observe.
+Not separately — it is what observation *is*. To stop it, pause observation on
+**Home** or in the menu bar. To leave particular apps alone, use Never Observe.
+
+## Why don't I see macOS's own background services?
+
+macOS brings a few of its own services to the front without you opening them.
+Moving your pointer to another Mac with Universal Control is the common one:
+as far as the system is concerned, Universal Control came forward.
+
+Onceaway leaves those out of History, of the time it counts per app, and of
+what it looks at for repeats. They are not work, and treating them as work
+would invent patterns out of your pointer crossing a screen edge.
+
+This applies to a short, specific list of macOS services, not to Apple's
+applications. Safari, Mail, Finder, Notes, Reminders, Calendar, Preview and the
+rest are your work like anything else, and they appear normally.
 
 ## Related articles
 
