@@ -859,3 +859,53 @@ kbd {
 .footer__brand { margin: 0; display: inline-flex; align-items: center; gap: 3px; font-size: 15px; }
 .footer__brand strong { font-weight: 700; letter-spacing: -0.01em; }
 .footer__tagline { margin: 0; font-size: 14px; color: var(--text-muted); }
+
+/* ---------------------------------------------------------- screenshots */
+
+/* A step illustration. The frame keeps a provider's own screenshot visually
+   separate from Onceaway's interface, so nobody mistakes one for the other,
+   and the caption carries the alt text so the picture and its description
+   stay together. */
+.shot {
+  margin: 22px 0 28px;
+  display: grid;
+  gap: 10px;
+}
+
+.shot__frame {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  line-height: 0;
+}
+
+.shot__frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.shot__caption {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* A screenshot that has not been taken yet. Deliberately looks like a
+   deliberate gap rather than a broken image. */
+.shot--pending .shot__frame {
+  display: grid;
+  place-items: center;
+  min-height: 132px;
+  border-style: dashed;
+  line-height: 1.5;
+}
+
+.shot__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}

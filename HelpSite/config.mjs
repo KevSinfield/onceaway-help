@@ -46,6 +46,21 @@ export const config = {
   },
 
   /**
+   * The only external destinations the Help site may link to.
+   *
+   * Every one is a provider's own documentation or console. Nothing else is
+   * allowed: no referral links, no tracking parameters, no account-specific or
+   * project-specific URLs, and no third-party tutorials. A test checks every
+   * generated page against this list, so a stray link fails the build rather
+   * than reaching a reader.
+   *
+   * These are links a person clicks, not resources a page loads. The Help site
+   * still fetches nothing from anywhere: no font, script, style or image comes
+   * from another origin, and a separate test enforces that.
+   */
+  officialLinkHosts: ['platform.claude.com', 'support.claude.com', 'platform.openai.com', 'developers.openai.com'],
+
+  /**
    * Section order in the sidebar and on the home page. Articles order
    * themselves from their own front matter; only the sections need saying,
    * because a folder name cannot express a learning sequence.

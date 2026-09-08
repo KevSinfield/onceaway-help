@@ -1,7 +1,7 @@
 ---
 title: Switching providers, and what happens if a request fails
 section: AI
-order: 7
+order: 9
 ---
 
 # Switching providers, and what happens if a request fails

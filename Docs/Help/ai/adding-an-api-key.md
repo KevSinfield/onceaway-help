@@ -9,6 +9,19 @@ order: 4
 **Settings → AI**, choose your provider, paste the key into the field, and
 press **Save to Keychain**.
 
+## Do you already have a key?
+
+**Yes.** Follow the Onceaway steps below.
+
+**No, I need to create one.** Start with the guide for your provider, which
+walks through the provider's own website step by step and then brings you back
+here:
+
+- [How to get an Anthropic API key](get-an-anthropic-api-key.md)
+- [How to get an OpenAI API key](get-an-openai-api-key.md)
+
+You only need one. Either provider works.
+
 ## Step by step
 
 1. Get an API key from your chosen provider's own website.
@@ -31,13 +44,11 @@ of it.
 
 ## Is a ChatGPT or Claude subscription enough?
 
-Not necessarily. **Provider subscriptions and API access are separate services
-and may have different billing and account requirements.** A consumer chat
-subscription does not automatically include API access.
+No. **Provider subscriptions and API access are separate services with separate
+billing.** A Claude or ChatGPT subscription covers the chat apps; it does not
+include API access, which is what Onceaway uses.
 
-Check your provider's current API documentation for what an API key requires.
-Onceaway cannot tell you what your provider charges or includes, and it will
-not guess.
+The provider guides above cover what each one currently requires.
 
 ## What it costs
 
@@ -47,6 +58,8 @@ has no view of your provider spending.
 
 ## Related articles
 
+- [How to get an Anthropic API key](get-an-anthropic-api-key.md)
+- [How to get an OpenAI API key](get-an-openai-api-key.md)
 - [Your API key](your-api-key.md)
 - [What does Onceaway send to AI?](what-does-onceaway-send-to-ai.md)
 - [AI says no key is configured](../troubleshooting/ai-says-no-key-is-configured.md)

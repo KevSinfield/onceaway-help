@@ -1,7 +1,7 @@
 ---
 title: What does Onceaway send to AI?
 section: AI
-order: 6
+order: 8
 ---
 
 # What does Onceaway send to AI?

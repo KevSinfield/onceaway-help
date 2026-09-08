@@ -83,6 +83,11 @@ export async function build({ quiet = false } = {}) {
   })
   await writeFile(path.join(dist, 'assets', 'search-index.json'), JSON.stringify(index), 'utf8')
 
+  // Screenshots and other illustrations, mirrored from the documents so an
+  // article's relative image link resolves without anything being renamed.
+  const imageCount = await copyImages(path.join(helpRoot, 'images'), path.join(dist, 'images'))
+  if (imageCount) log(`Copied ${imageCount} image(s)`)
+
   await writeFile(path.join(dist, 'assets', 'theme.css'), await readFile(path.join(src, 'theme.css')))
   await writeFile(path.join(dist, 'assets', 'site.js'), await readFile(path.join(src, 'site.js')))
   await writeFile(path.join(dist, 'favicon.svg'), favicon, 'utf8')
@@ -111,6 +116,33 @@ export async function build({ quiet = false } = {}) {
 }
 
 /** The first substantial sentence or two, for the page description. */
+/**
+ * Copies the image tree verbatim. Only real image files travel: a stray
+ * document or note left in the folder stays out of the published site.
+ */
+async function copyImages(from, to) {
+  const allowed = new Set(['.png', '.webp', '.jpg', '.jpeg', '.svg', '.gif'])
+  let copied = 0
+  let entries
+  try {
+    entries = await readdir(from, { withFileTypes: true })
+  } catch {
+    return 0
+  }
+  await mkdir(to, { recursive: true })
+  for (const entry of entries) {
+    const source = path.join(from, entry.name)
+    const target = path.join(to, entry.name)
+    if (entry.isDirectory()) {
+      copied += await copyImages(source, target)
+    } else if (allowed.has(path.extname(entry.name).toLowerCase())) {
+      await writeFile(target, await readFile(source))
+      copied += 1
+    }
+  }
+  return copied
+}
+
 function summarise(plain, title) {
   const withoutTitle = plain.startsWith(title) ? plain.slice(title.length).trim() : plain
   const trimmed = withoutTitle.slice(0, 240)

@@ -73,6 +73,12 @@ export function renderArticle(article) {
 
     if (token.type === 'inline' && token.children) {
       for (const child of token.children) {
+        if (child.type === 'image') {
+          child.attrSet('src', rewriteAsset(child.attrGet('src'), article))
+          child.attrSet('loading', 'lazy')
+          child.attrSet('decoding', 'async')
+          continue
+        }
         if (child.type !== 'link_open') continue
         const href = child.attrGet('href')
         child.attrSet('href', rewriteLink(href, article))
@@ -85,6 +91,8 @@ export function renderArticle(article) {
 
   let html = md.renderer.render(tokens, md.options, env)
   html = decorateStatusChips(html)
+  html = markScreenshotPlaceholders(html)
+  html = wrapScreenshots(html)
   return { html, headings }
 }
 
@@ -108,6 +116,39 @@ export function rewriteLink(href, article) {
 }
 
 /**
+ * `../images/ai/anthropic/keys.png` → `/images/ai/anthropic/keys.png`, with the
+ * site's base path applied. Unlike an article link this keeps the extension
+ * and gains no trailing slash: it is a file, not a route.
+ */
+export function rewriteAsset(src, article) {
+  if (!src || /^(https?:|data:)/i.test(src)) return src
+  const from = article.dir === '.' ? '' : article.dir
+  const joined = new URL(src, `file:///${from}/`).pathname.replace(/^\/+/, '')
+  return url(joined)
+}
+
+/**
+ * A screenshot that has not been taken yet.
+ *
+ * Written in the Markdown as `> **Screenshot:** what it should show`, so the
+ * source stays plain Markdown and reads sensibly on its own. It renders as a
+ * labelled slot rather than a broken image, which is honest about the state of
+ * the guide: the words are complete, the picture is not.
+ *
+ * When a real capture arrives the line becomes an ordinary Markdown image and
+ * this stops applying to it.
+ */
+function markScreenshotPlaceholders(html) {
+  return html.replace(
+    /<blockquote>\s*<p><strong>Screenshot:<\/strong>([\s\S]*?)<\/p>\s*<\/blockquote>/g,
+    (_match, description) =>
+      `<figure class="shot shot--pending"><div class="shot__frame" aria-hidden="true">` +
+      `<span class="shot__label">Screenshot to come</span></div>` +
+      `<figcaption class="shot__caption">${description.trim()}</figcaption></figure>`,
+  )
+}
+
+/**
  * The articles mark future capability in bold — **Planned**, **Not available
  * yet**. Those become quiet chips so a reader scanning the page cannot mistake
  * a planned feature for a live one. The text is left exactly as written, so
@@ -118,6 +159,21 @@ function decorateStatusChips(html) {
     /<strong>(Planned|Not available yet)([.:]?)<\/strong>/g,
     (_match, label, trailing) =>
       `<strong class="chip chip--planned"><span class="chip__dot" aria-hidden="true"></span>${label}</strong>${trailing}`,
+  )
+}
+
+/**
+ * A standalone image in an article is a step illustration: it gets a frame and
+ * its alt text becomes the caption, so the picture and its description travel
+ * together.
+ */
+function wrapScreenshots(html) {
+  return html.replace(
+    /<p>(<img [^>]*alt="([^"]*)"[^>]*>)<\/p>/g,
+    (_match, image, alt) =>
+      `<figure class="shot"><div class="shot__frame">${image}</div>` +
+      (alt ? `<figcaption class="shot__caption">${alt}</figcaption>` : '') +
+      `</figure>`,
   )
 }
 

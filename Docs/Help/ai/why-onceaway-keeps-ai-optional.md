@@ -1,7 +1,7 @@
 ---
 title: Why Onceaway keeps AI optional
 section: AI
-order: 9
+order: 11
 ---
 
 # Why Onceaway keeps AI optional

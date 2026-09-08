@@ -293,14 +293,46 @@ describe('nothing internal escapes into the site', () => {
   })
 
   test('nothing is loaded from an external origin', async () => {
+    // A resource the page fetches. An `<a href>` is a link somebody chooses to
+    // follow, which is a different thing and is checked separately below.
     for (const file of await htmlFiles(dist)) {
       const html = await readFile(file, 'utf8')
-      for (const [, attribute] of html.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)) {
+      for (const [, attribute] of html.matchAll(/\bsrc="(https?:\/\/[^"]+)"/g)) {
         assert.fail(`${path.relative(dist, file)} loads external resource ${attribute}`)
+      }
+      for (const [tag] of html.matchAll(/<link\b[^>]*>/g)) {
+        assert.doesNotMatch(tag, /href="https?:\/\//, `${path.relative(dist, file)} links an external stylesheet or font`)
       }
     }
     const js = await read('assets/site.js')
     assert.doesNotMatch(js, /https?:\/\/(?!localhost)/, 'site.js references an external origin')
+  })
+
+  test('every external link goes to an official provider page', async () => {
+    const allowed = new Set(config.officialLinkHosts)
+    let found = 0
+    for (const file of await htmlFiles(dist)) {
+      const html = await readFile(file, 'utf8')
+      for (const [, href] of html.matchAll(/<a\b[^>]*href="(https?:\/\/[^"]+)"/g)) {
+        const link = new URL(href)
+        found += 1
+        assert.ok(allowed.has(link.hostname), `${path.relative(dist, file)} links to ${link.hostname}`)
+        assert.equal(link.protocol, 'https:', `${href} is not https`)
+        assert.equal(link.search, '', `${href} carries query parameters`)
+        // Nothing that would identify an account, an organisation or a project.
+        assert.doesNotMatch(link.pathname, /\b(org|proj|acct|user)[-_]?[A-Za-z0-9]{6,}/, `${href} looks account-specific`)
+      }
+    }
+    assert.ok(found >= 6, `expected the provider guides to link out; found ${found}`)
+  })
+
+  test('external links open safely', async () => {
+    for (const file of await htmlFiles(dist)) {
+      const html = await readFile(file, 'utf8')
+      for (const [tag] of html.matchAll(/<a\b[^>]*href="https?:\/\/[^"]*"[^>]*>/g)) {
+        assert.match(tag, /rel="noopener noreferrer"/, `${path.relative(dist, file)} has an external link without rel`)
+      }
+    }
   })
 
   test('there is no analytics, tracking or chatbot', async () => {
