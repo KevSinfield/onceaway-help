@@ -1,0 +1,208 @@
+import { mkdir, readFile, rm, writeFile, readdir, stat } from 'node:fs/promises'
+import { createServer } from 'node:http'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { config, url } from './config.mjs'
+import { loadContent, helpRoot } from './lib/content.mjs'
+import { renderArticle, toPlainText } from './lib/render.mjs'
+import { articlePage, homePage, notFoundPage } from './lib/templates.mjs'
+import { validate } from './lib/validate.mjs'
+
+const here = path.dirname(fileURLToPath(import.meta.url))
+const dist = path.join(here, 'dist')
+const src = path.join(here, 'src')
+
+/** The favicon: the ring and its dot, nothing else. No wordmark. */
+const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#14171C"/>
+  <path d="M22.6 8.4a10 10 0 1 0 3.3 6" fill="none" stroke="#FCFBF9"
+        stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="25.1" cy="7.2" r="3.1" fill="#4FD6A6"/>
+</svg>
+`
+
+export async function build({ quiet = false } = {}) {
+  const log = (...args) => {
+    if (!quiet) console.log(...args)
+  }
+
+  const content = await loadContent()
+  log(`Reading ${content.articles.length} articles from ${path.relative(here, helpRoot)}`)
+
+  // Render every article once; the result feeds the pages, the search index
+  // and the validation, so nothing is parsed twice.
+  const rendered = new Map()
+  for (const article of content.articles) {
+    const output = renderArticle(article)
+    const plain = toPlainText(article.markdown)
+    article.summary = summarise(plain, article.title)
+    rendered.set(article.slug, { ...output, plain })
+  }
+
+  const problems = validate(content, rendered)
+  if (problems.length) {
+    console.error(`\nBuild validation failed with ${problems.length} problem(s):\n`)
+    for (const problem of problems) console.error('  -', problem)
+    throw new Error('help site validation failed')
+  }
+
+  await rm(dist, { recursive: true, force: true })
+  await mkdir(path.join(dist, 'assets'), { recursive: true })
+
+  const pages = []
+
+  // Home.
+  pages.push(['index.html', homePage(content.sections, content)])
+
+  // Articles, each at its own clean directory route.
+  for (const article of content.articles) {
+    pages.push([
+      path.join(article.slug, 'index.html'),
+      articlePage(article, rendered.get(article.slug), content.sections),
+    ])
+  }
+
+  // Not found. Written to 404.html, which every common static host picks up.
+  pages.push(['404.html', notFoundPage(content.sections)])
+
+  for (const [route, html] of pages) {
+    const target = path.join(dist, route)
+    await mkdir(path.dirname(target), { recursive: true })
+    await writeFile(target, html, 'utf8')
+  }
+
+  // The search index. Only Help content goes in: nothing from the repository,
+  // the engineering README, the tests or the app source.
+  const index = content.articles.map((article) => {
+    // The title is shown above the snippet, so it is trimmed off the indexed
+    // body rather than repeated back to the reader in every result.
+    const full = rendered.get(article.slug).plain
+    const plain = full.startsWith(article.title) ? full.slice(article.title.length).trim() : full
+    return {
+      t: article.title,
+      s: article.section,
+      u: `${article.slug}/`,
+      p: plain.slice(0, 1200),
+    }
+  })
+  await writeFile(path.join(dist, 'assets', 'search-index.json'), JSON.stringify(index), 'utf8')
+
+  await writeFile(path.join(dist, 'assets', 'theme.css'), await readFile(path.join(src, 'theme.css')))
+  await writeFile(path.join(dist, 'assets', 'site.js'), await readFile(path.join(src, 'site.js')))
+  await writeFile(path.join(dist, 'favicon.svg'), favicon, 'utf8')
+  // While the site is in Preview it is reachable by URL but not offered to
+  // search engines, and the sitemap is not advertised.
+  const robots = config.allowIndexing
+    ? `User-agent: *\nAllow: /\n${config.origin ? `Sitemap: ${config.origin.replace(/\/$/, '')}${url('sitemap.xml')}\n` : ''}`
+    : 'User-agent: *\nDisallow: /\n'
+  await writeFile(path.join(dist, 'robots.txt'), robots, 'utf8')
+
+  if (config.origin && config.allowIndexing) {
+    const urls = pages
+      .filter(([route]) => route.endsWith('index.html'))
+      .map(([route]) => route.replace(/index\.html$/, ''))
+      .map((route) => `  <url><loc>${config.origin.replace(/\/$/, '')}${url(route)}</loc></url>`)
+    await writeFile(
+      path.join(dist, 'sitemap.xml'),
+      `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`,
+      'utf8',
+    )
+  }
+
+  const size = await directorySize(dist)
+  log(`Built ${pages.length} pages into ${path.relative(here, dist)}/ (${(size / 1024).toFixed(0)} KB)`)
+  return { content, rendered, pages, size }
+}
+
+/** The first substantial sentence or two, for the page description. */
+function summarise(plain, title) {
+  const withoutTitle = plain.startsWith(title) ? plain.slice(title.length).trim() : plain
+  const trimmed = withoutTitle.slice(0, 240)
+  const stop = trimmed.lastIndexOf('. ')
+  const text = stop > 90 ? trimmed.slice(0, stop + 1) : trimmed
+  return text.length < withoutTitle.length && !text.endsWith('.') ? `${text.trim()}…` : text.trim()
+}
+
+async function directorySize(dir) {
+  let total = 0
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) total += await directorySize(full)
+    else total += (await stat(full)).size
+  }
+  return total
+}
+
+/* -------------------------------------------------------- local preview */
+
+const MIME = {
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml',
+}
+
+/**
+ * A preview server for development only. It serves the built directory and
+ * nothing else, on localhost. It is never part of the deployed site.
+ */
+function serve(port = 4321) {
+  const server = createServer(async (request, response) => {
+    const requested = decodeURIComponent(new URL(request.url, 'http://localhost').pathname)
+    const base = config.basePath.replace(/\/$/, '')
+    const relative = base && requested.startsWith(base) ? requested.slice(base.length) : requested
+    let target = path.join(dist, relative)
+
+    try {
+      if ((await stat(target)).isDirectory()) target = path.join(target, 'index.html')
+    } catch {
+      target = path.join(dist, '404.html')
+      response.statusCode = 404
+    }
+
+    // Never serve outside the built directory.
+    if (!path.resolve(target).startsWith(path.resolve(dist))) {
+      response.statusCode = 403
+      response.end('Forbidden')
+      return
+    }
+
+    try {
+      const body = await readFile(target)
+      response.setHeader('Content-Type', MIME[path.extname(target)] ?? 'application/octet-stream')
+      response.end(body)
+    } catch {
+      response.statusCode = 404
+      response.setHeader('Content-Type', 'text/html; charset=utf-8')
+      response.end(await readFile(path.join(dist, '404.html')).catch(() => 'Not found'))
+    }
+  })
+  server.listen(port, '127.0.0.1', () => {
+    console.log(`\nOnceaway Help running at http://localhost:${port}${config.basePath}`)
+    console.log('Press Ctrl+C to stop.\n')
+  })
+  return server
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const args = new Set(process.argv.slice(2))
+  await build()
+
+  if (args.has('--watch')) {
+    const { watch } = await import('node:fs')
+    let pending = null
+    watch(helpRoot, { recursive: true }, () => {
+      clearTimeout(pending)
+      pending = setTimeout(() => build().catch((error) => console.error(error.message)), 120)
+    })
+    watch(src, { recursive: true }, () => {
+      clearTimeout(pending)
+      pending = setTimeout(() => build().catch((error) => console.error(error.message)), 120)
+    })
+    console.log('Watching Docs/Help and src for changes.')
+  }
+  if (args.has('--serve')) serve(Number(process.env.PORT) || 4321)
+}

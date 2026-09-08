@@ -1,0 +1,77 @@
+name: Deploy Help site
+
+# Builds the Onceaway Help site from the Markdown in Docs/Help and publishes it
+# to GitHub Pages. Nothing here needs a secret: the built-in Pages token is
+# enough, so no personal access token is created or stored.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Docs/Help/**'
+      - 'HelpSite/**'
+      - 'Scripts/check-help-docs.sh'
+      - '.github/workflows/deploy-help.yml'
+  workflow_dispatch:
+
+# The least the Pages actions need, and nothing more.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time. A queued run supersedes an older queued one, but a
+# run already publishing is allowed to finish rather than being cancelled.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: HelpSite/package-lock.json
+
+      - name: Validate the Help documents
+        run: ./Scripts/check-help-docs.sh
+
+      - name: Install dependencies
+        working-directory: HelpSite
+        run: npm ci
+
+      - name: Run Help site tests
+        working-directory: HelpSite
+        run: npm test
+
+      - name: Build the site
+        working-directory: HelpSite
+        env:
+          # A GitHub project page is served from /<repository>/, so every
+          # generated link is built against that base.
+          HELP_SITE_BASE: /${{ github.event.repository.name }}/
+          HELP_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
+          # Preview: reachable by URL, not offered to search engines.
+          HELP_SITE_INDEXING: 'false'
+        run: npm run build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: HelpSite/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
