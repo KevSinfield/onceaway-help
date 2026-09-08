@@ -1,4 +1,5 @@
 import { config, url } from '../config.mjs'
+import { markSvg } from '../src/mark.mjs'
 
 export const escapeHtml = (value) =>
   String(value)
@@ -8,18 +9,17 @@ export const escapeHtml = (value) =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
 
-/** The Onceaway mark: an open ring with the brand dot sitting in its gap. */
-export const mark = (size = 22) => `
-<svg class="mark" width="${size}" height="${size}" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-  <path d="M23.4 6.9a12 12 0 1 0 4.3 7.2" fill="none" stroke="currentColor"
-        stroke-width="3.6" stroke-linecap="round"/>
-  <circle cx="26.4" cy="5.6" r="3.6" fill="var(--mint)"/>
-</svg>`
+/**
+ * The Onceaway mark, from the shared geometry in `src/mark.mjs`. On light
+ * surfaces the ring is ink and the dot is mint; on dark the ring becomes mint.
+ * `currentColor` lets the stylesheet make that swap.
+ */
+export const mark = (size = 22) => markSvg({ size })
 
 const lockup = () => `
 <a class="lockup" href="${url('')}">
   ${mark(24)}
-  <span class="lockup__text"><strong>${escapeHtml(config.productName)}</strong> Help</span>
+  <span class="lockup__text"><strong>${escapeHtml(config.wordmarkTail)}</strong> Help</span>
 </a>`
 
 const themeToggle = () => `
@@ -121,7 +121,7 @@ const sidebar = (sections, currentSlug) => `
 const footer = () => `
 <footer class="footer">
   <div class="footer__inner">
-    <p class="footer__brand">${mark(18)} <strong>${escapeHtml(config.siteName)}</strong></p>
+    <p class="footer__brand">${mark(18)} <strong>${escapeHtml(config.wordmarkTail)}</strong> Help</p>
     <p class="footer__tagline">${escapeHtml(config.tagline)}</p>
   </div>
 </footer>`

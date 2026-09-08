@@ -20,11 +20,21 @@
   --text-secondary: #63665f;
   --text-muted: #7d807a;
 
+  /* The Onceaway identity's own colours, from the brand board. These dress
+     the logo, the mark and the icon only. The interface tokens above dress
+     the product, and the two are deliberately kept apart. */
+  --brand-signal-green: #4fd6a6;
+  --brand-ink: #0f1218;
+  --brand-surface: #171c25;
+  --brand-border: #262d3a;
+  --brand-off-white: #e9ecf1;
+  --brand-green-text: #1f9f74;
+  --brand-muted: #7d8594;
+
   /* Accent. */
   --accent: #1f5f5b;
   --accent-strong: #174946;
   --accent-soft: #ddede9;
-  --mint: #4fd6a6;
 
   /* Lines. */
   --border: rgb(0 0 0 / 0.09);
@@ -222,14 +232,18 @@ kbd {
 .lockup {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  /* The mark stands in for the word's leading "o", so it sits tight against
+     the type rather than being spaced away from it as a separate emblem. */
+  gap: 3px;
   color: var(--ink);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 17px;
 }
-.lockup__text strong { font-weight: 600; }
+.lockup__text { letter-spacing: -0.01em; }
+.lockup__text strong { font-weight: 700; }
 .lockup__text { color: var(--ink); }
-.mark { color: var(--ink); flex: none; }
+/* The mark carries its own signal green on light and dark grounds alike. */
+.mark { flex: none; }
 
 .icon-button {
   display: inline-flex;
@@ -842,5 +856,6 @@ kbd {
   gap: 14px;
   flex-wrap: wrap;
 }
-.footer__brand { margin: 0; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+.footer__brand { margin: 0; display: inline-flex; align-items: center; gap: 3px; font-size: 15px; }
+.footer__brand strong { font-weight: 700; letter-spacing: -0.01em; }
 .footer__tagline { margin: 0; font-size: 14px; color: var(--text-muted); }

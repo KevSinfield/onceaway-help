@@ -110,14 +110,102 @@ CDN, no chatbot. The only things stored in the browser are a theme preference
 and a per-session flag for whether the preview banner was dismissed. Neither is
 personal and neither leaves the browser.
 
-## Output and deployment
+## Where it is published
+
+**https://kevsinfield.github.io/onceaway-help/**
+
+A temporary GitHub Pages host while Onceaway is in Preview. It is reachable by
+anyone with the link and is deliberately not offered to search engines — see
+*Indexing* below.
+
+### How it is deployed
+
+This repository has no git remote: it lives only on the development machine
+and nothing in it is published, the app source least of all. Only the Help
+documents and this site's source are mirrored into a separate public
+repository, which builds and serves the site.
+
+```
+this repository (local only)
+  Docs/Help + HelpSite
+        │
+        │  Scripts/publish-help-site.sh
+        ▼
+KevSinfield/onceaway-help (public)
+        │
+        │  .github/workflows/deploy-help.yml
+        ▼
+GitHub Pages
+```
+
+The public repository was created with clean history: none of this
+repository's commits were pushed into it.
+
+### Publishing a change
+
+1. Edit the article in `Docs/Help/`.
+2. Commit it here.
+3. Run `Scripts/publish-help-site.sh`.
+
+The script validates the documents, runs the site tests, mirrors the sources
+and pushes. GitHub Actions then rebuilds and redeploys, taking about a minute.
+Nothing is edited by hand in the public repository and no file is ever uploaded
+through a web interface.
+
+### The workflow
+
+`.github/workflows/deploy-help.yml` in the public repository runs on a push
+touching `Docs/Help/**`, `HelpSite/**` or the workflow itself, and on manual
+dispatch. It checks out, installs Node 22, runs the document validator, runs
+`npm ci`, runs the site tests, builds, then uploads and deploys the Pages
+artifact.
+
+It needs no secret: the built-in Pages token is enough, so no personal access
+token exists. Permissions are `contents: read`, `pages: write`,
+`id-token: write` and nothing else. Deployments are serialised with a
+concurrency group.
+
+### Build settings used in deployment
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `HELP_SITE_BASE` | `/onceaway-help/` | A GitHub project page is served from a repository-named path |
+| `HELP_SITE_ORIGIN` | `https://kevsinfield.github.io` | Canonical and Open Graph URLs; lower-cased to match the hostname people actually reach |
+| `HELP_SITE_INDEXING` | `false` | Preview: `robots.txt` disallows crawling and no sitemap is advertised |
+
+### Indexing
+
+While Onceaway is in Preview, `robots.txt` is:
+
+```
+User-agent: *
+Disallow: /
+```
+
+The site is public by URL but not promoted to search engines, because it
+describes a test build whose details will change. Revisit this at public
+launch by setting `HELP_SITE_INDEXING=true`, which also emits a sitemap.
+
+## Output and deployment portability
 
 `npm run build` writes `HelpSite/dist/` — plain HTML, one stylesheet, one
 script, a search index and an SVG favicon. It is ordinary static output and
-needs no server-side anything, so it can be served by Cloudflare Pages, Netlify,
-Vercel, GitHub Pages, S3 with CloudFront, or a plain web server.
+needs no server-side anything, so it can equally be served by Cloudflare Pages,
+Netlify, Vercel, S3 with CloudFront, or a plain web server.
 
-No host is configured here. Deployment is a later, separate piece of work.
+### Moving to a custom domain later
+
+Every generated link runs through `basePath`, so moving hosts is a build
+setting rather than a content change. None of the 56 articles would need
+editing.
+
+To move to something like `help.example.com`:
+
+1. Build with `HELP_SITE_BASE=/` and `HELP_SITE_ORIGIN=https://help.example.com`.
+2. Point the DNS record at the host.
+3. On GitHub Pages, add the custom domain and let it issue a certificate.
+
+No domain has been chosen and no DNS is configured.
 
 ### Hosting at a different path or origin
 

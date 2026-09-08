@@ -6,6 +6,8 @@
 export const config = {
   siteName: 'Onceaway Help',
   productName: 'Onceaway',
+  /** The wordmark after the mark, which stands in for its leading "o". */
+  wordmarkTail: 'nceaway',
   tagline: 'Make repeated work go away.',
 
   /**

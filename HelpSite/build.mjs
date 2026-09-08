@@ -6,20 +6,16 @@ import { config, url } from './config.mjs'
 import { loadContent, helpRoot } from './lib/content.mjs'
 import { renderArticle, toPlainText } from './lib/render.mjs'
 import { articlePage, homePage, notFoundPage } from './lib/templates.mjs'
+import { iconSvg } from './src/mark.mjs'
 import { validate } from './lib/validate.mjs'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const dist = path.join(here, 'dist')
 const src = path.join(here, 'src')
 
-/** The favicon: the ring and its dot, nothing else. No wordmark. */
-const favicon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#14171C"/>
-  <path d="M22.6 8.4a10 10 0 1 0 3.3 6" fill="none" stroke="#FCFBF9"
-        stroke-width="3.4" stroke-linecap="round"/>
-  <circle cx="25.1" cy="7.2" r="3.1" fill="#4FD6A6"/>
-</svg>
-`
+// The favicon is the brand board's application icon: the mark in mint on an
+// ink tile, drawn from the same geometry as everything else.
+const favicon = iconSvg()
 
 export async function build({ quiet = false } = {}) {
   const log = (...args) => {
