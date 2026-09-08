@@ -78,6 +78,7 @@ and [What does it never record?](privacy-security/what-onceaway-never-records.md
 - [How to decide whether something is worth reducing](using-onceaway/deciding-what-is-worth-reducing.md)
 - [How to read Insights](using-onceaway/how-to-read-insights.md)
 - [How to use notifications](using-onceaway/using-notifications.md)
+- [Notifications on your Mac](using-onceaway/macos-notifications.md)
 - [How to use Assist safely](using-onceaway/using-assist-safely.md)
 - [What Assist will never do](using-onceaway/what-assist-will-never-do.md)
 - [Why Onceaway asks before it acts](using-onceaway/why-onceaway-asks-before-it-acts.md)

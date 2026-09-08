@@ -38,7 +38,14 @@ Notifications are worked out from Onceaway's current state, not stored as an
 inbox. Review the Pattern and the "review needed" entry stops existing, because
 there is nothing left to tell you. This is normal.
 
+## Notifications on your Mac
+
+Separately from the bell, Onceaway can send you a small number of ordinary
+macOS notifications. They are off until you turn them on. See
+[Notifications on your Mac](macos-notifications.md).
+
 ## Related articles
 
+- [Notifications on your Mac](macos-notifications.md)
 - [What do notifications mean?](../how-onceaway-works/what-notifications-mean.md)
 - [Notifications disappeared](../troubleshooting/notifications-disappeared.md)

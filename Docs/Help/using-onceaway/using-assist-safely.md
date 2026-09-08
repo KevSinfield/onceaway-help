@@ -1,7 +1,7 @@
 ---
 title: How to use Assist safely
 section: Using Onceaway
-order: 5
+order: 6
 ---
 
 # How to use Assist safely
