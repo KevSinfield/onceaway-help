@@ -20,7 +20,6 @@ see the current state in the menu: *Privacy: Normal* or *Privacy: Protected*.
 
 ## What puts Onceaway into a protected state
 
-- A password or other secure text field is active.
 - A banking, payment or other financial context.
 - A built-in protected application, such as a password manager.
 - An app you added to your own **Never Observe** list.

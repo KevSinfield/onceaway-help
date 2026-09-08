@@ -6,17 +6,25 @@ order: 4
 
 # How are passwords protected?
 
-Two separate protections cover credentials: secure fields, and password manager
-applications.
+## Onceaway does not record what you type
 
-## Secure fields
+Not in a password field, and not anywhere else. There is no keystroke
+recording, no reading of field values and no capture of the screen anywhere in
+Onceaway, so there is nothing that could pick up a password in the first place.
 
-When you type into a password field — or any other secure text field — macOS
-puts the system into secure input. Onceaway treats that as a protected context.
+That is a stronger protection than filtering one out afterwards, and it applies
+in every application.
 
-The important part is the order: **the protection is applied before detailed
-observation happens, not filtered out afterwards.** Password contents are not
-captured.
+### One thing to know
+
+Onceaway does **not** currently detect that a password field is active. There
+is a protected-context category for it, and you may see it named in History,
+but no part of the current build switches it on.
+
+In practice this matters in one place: if you have browser context switched on
+and you sign in to a website, that site's host may be recorded like any other.
+Your password is not, and cannot be. Adding secure-input detection is on the
+list for a later build.
 
 ## Password manager applications
 

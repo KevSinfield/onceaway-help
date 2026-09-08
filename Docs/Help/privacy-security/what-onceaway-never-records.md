@@ -11,8 +11,8 @@ This list is short and it is meant to be exact.
 ## Never captured
 
 - **What you type.** There is no keystroke recording of any kind.
-- **Password and secure-field contents.** Typing in a secure field creates a
-  protected moment before anything detailed is recorded.
+- **Password and secure-field contents.** There is nothing in Onceaway that
+  reads what you type, in any field, in any application.
 - **Clipboard contents.** Onceaway does not read your clipboard.
 - **Screen contents.** Onceaway does not capture, read or analyse your screen.
 - **File names.** Passive observation records the file's type and folder
