@@ -1,6 +1,7 @@
 import { test, describe, before } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from '../build.mjs'
@@ -9,6 +10,17 @@ import { geometry, brand, markSvg, iconSvg } from '../src/mark.mjs'
 const here = path.dirname(fileURLToPath(import.meta.url))
 const dist = path.resolve(here, '../dist')
 const swiftSource = path.resolve(here, '../../ProjectObserver/Product/OnceawayLogo.swift')
+
+/**
+ * The app's source is deliberately not published alongside the Help site, so
+ * these two checks only run where both live: the private repository. Skipping
+ * is explicit rather than silent, and the guard still fires wherever it can
+ * actually do its job.
+ */
+const appSourcePresent = existsSync(swiftSource)
+const needsAppSource = appSourcePresent
+  ? false
+  : 'the app source is not part of this repository'
 
 before(async () => {
   await build({ quiet: true })
@@ -57,7 +69,7 @@ describe('brand colours', () => {
 })
 
 describe('one geometry, shared with the app', () => {
-  test('the web geometry matches the Swift source exactly', async () => {
+  test('the web geometry matches the Swift source exactly', { skip: needsAppSource }, async () => {
     const swift = await readFile(swiftSource, 'utf8')
     // The Swift side stores the same numbers as fractions of the 48 box.
     const fraction = (name) => {
@@ -81,7 +93,7 @@ describe('one geometry, shared with the app', () => {
     assert.match(swift, /static let arcEnd: CGFloat = 390/)
   })
 
-  test('the Swift palette matches the web palette', async () => {
+  test('the Swift palette matches the web palette', { skip: needsAppSource }, async () => {
     const swift = await readFile(swiftSource, 'utf8')
     for (const [name, hex] of [
       ['signalGreenHex', brand.signalGreen],
