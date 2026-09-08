@@ -55,10 +55,15 @@ jobs:
           # A GitHub project page is served from /<repository>/, so every
           # generated link is built against that base.
           HELP_SITE_BASE: /${{ github.event.repository.name }}/
-          HELP_SITE_ORIGIN: https://${{ github.repository_owner }}.github.io
+          # The owner is lower-cased: Pages serves from a lower-case hostname,
+          # and a canonical URL should be the address people actually reach.
+          OWNER: ${{ github.repository_owner }}
           # Preview: reachable by URL, not offered to search engines.
           HELP_SITE_INDEXING: 'false'
-        run: npm run build
+        run: |
+          export HELP_SITE_ORIGIN="https://$(echo "$OWNER" | tr '[:upper:]' '[:lower:]').github.io"
+          echo "Building against $HELP_SITE_ORIGIN$HELP_SITE_BASE"
+          npm run build
 
       - uses: actions/configure-pages@v5
 
