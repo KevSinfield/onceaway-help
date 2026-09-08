@@ -20,7 +20,7 @@ preference, and it is remembered between launches.
 ## Each provider is separate
 
 - Its own API key. A key saved for one does not work for the other.
-- Its own model setting, which you can leave at the provider's default or set
+- Its own model choice, which you can leave at Onceaway's default or set
   yourself.
 
 If you switch to a provider you have not given a key to, Onceaway will tell you

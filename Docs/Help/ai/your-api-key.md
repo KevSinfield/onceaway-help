@@ -1,7 +1,7 @@
 ---
 title: Your API key: where it is stored and when it is used
 section: AI
-order: 7
+order: 8
 ---
 
 # Your API key: where it is stored and when it is used

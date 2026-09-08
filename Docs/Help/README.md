@@ -65,6 +65,7 @@ and [What does it never record?](privacy-security/what-onceaway-never-records.md
 - [How do I add an API key?](ai/adding-an-api-key.md)
 - [How to get an Anthropic API key](ai/get-an-anthropic-api-key.md)
 - [How to get an OpenAI API key](ai/get-an-openai-api-key.md)
+- [Choosing an AI model](ai/choosing-an-ai-model.md)
 - [Your API key: where it is stored and when it is used](ai/your-api-key.md)
 - [What does Onceaway send to AI?](ai/what-does-onceaway-send-to-ai.md)
 - [Switching providers, and what happens if a request fails](ai/switching-providers-and-failed-requests.md)
