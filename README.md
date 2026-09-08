@@ -1,8 +1,7 @@
 # Onceaway Help
 
-The published Help site for [Onceaway](https://github.com/KevSinfield/onceaway-help),
-a Mac app that notices work you repeat and helps you decide what is worth
-reducing.
+The published Help site for Onceaway, a Mac app that notices work you repeat
+and helps you decide what is worth reducing.
 
 **Read it here:** https://kevsinfield.github.io/onceaway-help/
 
