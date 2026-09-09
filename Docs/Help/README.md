@@ -44,6 +44,7 @@ and [What does it never record?](privacy-security/what-onceaway-never-records.md
 - [What happens on banking and financial websites?](privacy-security/banking-and-financial-websites.md)
 - [Can I exclude apps or websites?](privacy-security/excluding-apps.md)
 - [Where is my data stored?](privacy-security/where-is-my-data-stored.md)
+- [Uninstalling Onceaway and removing your data](privacy-security/uninstalling-onceaway.md)
 - [Is my activity sent to Onceaway servers?](privacy-security/is-my-activity-sent-anywhere.md)
 - [Does Onceaway monitor employees?](privacy-security/does-onceaway-monitor-employees.md)
 - [Why Onceaway doesn't score your productivity](privacy-security/why-onceaway-doesnt-score-your-productivity.md)
